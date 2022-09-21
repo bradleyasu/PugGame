@@ -10,6 +10,7 @@ export default class Sample extends Screen {
     video = document.createElement("video");
     frame = null;
     is_jumping = false;
+    intro_over = false;
 
 
     constructor(canvas) {
@@ -17,6 +18,7 @@ export default class Sample extends Screen {
         this.max_ticks = this.height;
         this.video.src = "./assets/intro.mp4";
         this.video.load();
+        this.video.playsInline = true;
         this.bindKeys();
         this.sprite = new Sprite('./sprites/pug.png', new Dimension(80, 80), 12, 12);
         this._setup();
@@ -24,16 +26,26 @@ export default class Sample extends Screen {
 
 
     _setup = () => {
+        const p = this;
         SpriteManager.addSprite(PUG, this.sprite);
         this.sprite.setRow(10, 12);
+        this.video.addEventListener('ended', () => p.intro_over = true);
     }
 
 
     bindKeys = () => {
         const p = this;
         this.canvas.addEventListener('click', (e) => {
-            p.video.play();
-            JUKEBOX.play('sample');
+            if(p.intro_over) {
+                if (!p.is_jumping) {
+                    p.tick = 1; // Probably not a good idea
+                    p.sprite.setRow(3, 3);
+                    p.is_jumping = true;
+                }
+            } else {
+                p.video.play();
+                JUKEBOX.play('sample');
+            }
         });
         document.addEventListener("keydown", function(event) {
             event.preventDefault();
@@ -58,13 +70,17 @@ export default class Sample extends Screen {
         this.ctx.fillStyle = "#000000";
         this.ctx.fillRect(0,0, this.width, this.height);
         this.ctx.drawImage(this.video, 0, 0, this.width, this.height);
-        if (this.is_jumping && this.tick % 250 === 0 || !this.is_jumping && this.tick % 10 === 0) {
-            this.sprite.next(() => {
-                this.is_jumping && this.sprite.setRow(10, 12);
-                this.is_jumping = false;
-            });
+
+        if (this.intro_over) {
+            if (this.is_jumping && this.tick % 250 === 0 || !this.is_jumping && this.tick % 10 === 0) {
+                this.sprite.next(() => {
+                    this.is_jumping && this.sprite.setRow(10, 12);
+                    this.is_jumping = false;
+                });
+            }
+        
+            this.sprite.render(this.ctx, 300, this.height - 300, 2);
         }
-        this.sprite.render(this.ctx, 300, this.height - 300, 2);
         this._tick();
     }
 }
