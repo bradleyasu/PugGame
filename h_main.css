@@ -1,0 +1,36 @@
+@font-face {
+    font-family: 'GameFont';
+    src: url('./assets/font.ttf');
+}
+
+html, body {
+    margin: 0px;
+    padding: 0px;
+    height: 100vh;
+    width: 100vw;
+    background: #424242;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    justify-items: center;
+    align-items: center;
+    align-content: center;
+}
+
+.container {
+    /* width: 800px; */
+    /* height: 600px; */
+    width: 100% !important;
+    height: 100% !important;
+    border: 1px solid #000000;
+    background: #242424;
+    box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
+    border-radius: 5px;;
+}
+
+#game-board {
+    width: 100vw;
+    height: 100vh;
+}

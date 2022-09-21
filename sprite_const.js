@@ -1,0 +1,2 @@
+
+export const PUG = 'pug';
