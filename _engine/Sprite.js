@@ -18,6 +18,7 @@ export default class Sprite {
     constructor(spriteSrc, dimension, sheetRows = 1, sheetColumns = 1) {
         this.dimension = dimension;
         this.sheet = new Image();
+        this.src = spriteSrc;
         this.sheet.src = spriteSrc;
         this.sheet.onload = this.ready();
         this.columnMax = sheetColumns;
