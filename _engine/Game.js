@@ -10,7 +10,9 @@ function Game(canvasId) {
     const canvas = document.getElementById(canvasId);
     let ctx = canvas.getContext('2d');
     let thread = undefined;
-    JUKEBOX.load('sample', './audio/sample.mp3');
+    JUKEBOX.load('bgsound_1', './audio/bgsound_1.mp3');
+    JUKEBOX.load('bgsound_2', './audio/bgsound_2.mp3');
+    JUKEBOX.load('bgsound_3', './audio/bgsound_3.mp3');
 
 
     ScreenManager.register('test', new Sample(canvas));

@@ -31,11 +31,12 @@ class Jukebox {
         }
     }
 
-    _load_and_play = (_audioObj, src) => {
+    _load_and_play = (_audioObj, src, loop = true) => {
         _audioObj.src = src;
         _audioObj.load();
         _audioObj.currentTime = 0;
         _audioObj.play();
+        _audioObj.loop = loop;
     }
 
     load = (key, src, type = this.AUDIO_TYPES.TRACK) => {

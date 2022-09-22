@@ -18,6 +18,9 @@ export default class Sample extends Screen {
     started = false;
     pug_tick = 1;
     obstacles = [];
+    obstacle_count = 3;
+    seed = Math.floor(Math.random() * (3 - 0) + 0);
+    score = 0;
     
     constructor(canvas) {
         super(canvas);
@@ -25,21 +28,21 @@ export default class Sample extends Screen {
         this.video.src = "./assets/intro.mp4";
         this.video.load();
         this.video.playsInline = true;
-        this.bindKeys();
         this.sprite = new Sprite('./sprites/pug.png', new Dimension(80, 80), 12, 12);
         this.tiles = new Sprite('./sprites/tiles.png', new Dimension(128, 128), 12, 22);
         this.max_ticks = 10000;
         this._setup();
+        this.bindKeys();
     }
 
 
     _setup = () => {
         const p = this;
+        const r = this.seed;
         SpriteManager.addSprite(PUG, this.sprite);
         SpriteManager.addSprite('background', this.background);
         this.sprite.setRow(6, 12, 7);
         this.video.addEventListener('ended', () => p.intro_over = true);
-        const r = Math.floor(Math.random() * (3 - 0) + 0);
         const rr = r * 3 + 1;
         this.tiles.setRow(rr, 3);
         this.background = new Sprite('./assets/bg_'+(r + 1)+'.png', new Dimension(1920, 1080));
@@ -66,7 +69,7 @@ export default class Sample extends Screen {
                 }
             } else {
                 p.video.play();
-                JUKEBOX.play('sample');
+                JUKEBOX.play('bgsound_'+(p.seed+1));
             }
         });
         document.addEventListener("keydown", function(event) {
@@ -80,11 +83,11 @@ export default class Sample extends Screen {
     }
 
     _obstacle_generator = () => {
-        if(this.obstacles.length >= 10) {
+        if(this.obstacles.length >= this.obstacle_count) {
             return;
         }
         let offset = 0;
-        while(this.obstacles.length < 10) {
+        while(this.obstacles.length < this.obstacle_count) {
             let min = this.width + offset;
             let max = min + this.width/4;
             let randomOffset = Math.floor(Math.random() * (max - min) + min);
@@ -138,7 +141,7 @@ export default class Sample extends Screen {
             this.ctx.fillStyle = "#ff284d";
             this.ctx.font = "80px GameFont";
             const title = "chloe";
-            const subTitle = "\"a day in the life\"";
+            const subTitle = "\"a pug's life\"";
             const startText = "TAP TO START / JUMP";
             const tsize = this.ctx.measureText(title);
             new ShadowText(title).draw(this.ctx, this.width / 2 - tsize.width/2, this.height / 2 - 250);
@@ -160,6 +163,15 @@ export default class Sample extends Screen {
                 ob.x = ob.x - (1 * this.groundSpeed);
                 this.obstacles = this.obstacles.filter(x => x.x > 0 - this.tiles.dimension.width);
             }
+        }
+
+        // score
+        if (this.started && this.intro_over) {
+            this.score++;
+            this.ctx.fillStyle = "#ff284d";
+            this.ctx.font = "20px GameFont";
+            new ShadowText("SPEED: "+Math.round(this.groundSpeed*10)/10 + " MPH", 3).draw(this.ctx, 20, 50);
+            new ShadowText("SCORE: "+this.score, 3).draw(this.ctx, 20, 90);
         }
 
         this._tick();
