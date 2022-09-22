@@ -13,9 +13,8 @@ export default class Sample extends Screen {
     jump_desc = false;
     intro_over = false;
     pug_y = 0; 
+    groundSpeed = 0.40;
     
-
-
     constructor(canvas) {
         super(canvas);
         this.max_ticks = this.height;
@@ -48,7 +47,7 @@ export default class Sample extends Screen {
             if(p.intro_over) {
                 if (!p.is_jumping) {
                     p.tick = 1; // Probably not a good idea
-                    p.sprite.setRow(3, 3);
+                    p.sprite.setRow(3, 2);
                     p.is_jumping = true;
                 }
             } else {
@@ -60,13 +59,9 @@ export default class Sample extends Screen {
             event.preventDefault();
             switch(event.keyCode) {
               case 32:
-                if (!p.is_jumping) {
-                    p.sprite.setRow(3, 3);
-                    p.is_jumping = true;
-                }
+                p.groundSpeed += 0.10;
                 break;
             }
-            
           });
     }
 
@@ -78,7 +73,7 @@ export default class Sample extends Screen {
         this.ctx.fillStyle = "#00FF00";
         this.ctx.fillRect(0,0, this.width, this.height);
         if(this.is_jumping) {
-            if (this.pug_y > 360) this.jump_desc = true;
+            if (this.pug_y > 140) this.jump_desc = true;
             if(this.jump_desc && this.pug_y > 0) {
                 this.pug_y--;
             } else {
@@ -88,7 +83,7 @@ export default class Sample extends Screen {
 
         if (this.intro_over) {
             this.background.render(this.ctx, 0, 0);
-            if (this.is_jumping && this.tick % 250 === 0 || !this.is_jumping && this.tick % 10 === 0) {
+            if (this.is_jumping && this.tick % 140 === 0 || !this.is_jumping && this.tick % 10 === 0) {
                 this.sprite.next(() => {
                     this.is_jumping && this.sprite.setRow(6, 12, 7);
                     this.is_jumping = false;
@@ -97,7 +92,7 @@ export default class Sample extends Screen {
                 });
             }
             this.sprite.render(this.ctx, 300, this.height - 280 - this.pug_y, 2);
-            let gx = -0.40 * this.tick;
+            let gx =(-1 * this.groundSpeed) * this.tick;
             while (gx < this.width) {
                 this.tiles.column = 3;
                 this.tiles.render(this.ctx, gx, this.height - this.tiles.dimension.height);
