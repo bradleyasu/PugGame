@@ -11,7 +11,9 @@ export default class Sprite {
 
     //Maximum number of columns available in sheet (calculated)
     columnMax = 1;
+    columnMin = 1;
     defaultMax = 1;
+    defaultMin = 1;
 
     constructor(spriteSrc, dimension, sheetRows = 1, sheetColumns = 1) {
         this.dimension = dimension;
@@ -35,7 +37,7 @@ export default class Sprite {
     next = (on_reset = () => {}) => {
         this.column += 1;
         if (this.column > this.columnMax){
-            this.column = 1;
+            this.column = this.columnMin;
             on_reset();
         } 
         return this;
@@ -53,10 +55,11 @@ export default class Sprite {
      * @param {*} colMax Defaults to whatever was set in the instantiation unless otherwise specified
      * @returns 
      */
-    setRow = (row, colMax = -1) => {
+    setRow = (row, colMax = -1, colMin = -1) => {
         this.columnMax = colMax === -1 ? this.defaultMax : colMax;
+        this.columnMin = colMin === -1 ? this.defaultMin : colMin;
         this.row = row;
-        this.column = 1;
+        this.column = this.columnMin;
         if (this.row > this.rowMax) this.row = 1;
         if (this.row < 1) this.row = this.rowMax;
         return this;

@@ -10,7 +10,10 @@ export default class Sample extends Screen {
     video = document.createElement("video");
     frame = null;
     is_jumping = false;
+    jump_desc = false;
     intro_over = false;
+    pug_y = 0; 
+    
 
 
     constructor(canvas) {
@@ -21,6 +24,9 @@ export default class Sample extends Screen {
         this.video.playsInline = true;
         this.bindKeys();
         this.sprite = new Sprite('./sprites/pug.png', new Dimension(80, 80), 12, 12);
+        this.tiles = new Sprite('./sprites/tiles.png', new Dimension(128, 128), 12, 22);
+        this.background = new Sprite('./assets/bg_1.png', new Dimension(1920, 1080));
+        this.max_ticks = 10000;
         this._setup();
     }
 
@@ -28,8 +34,11 @@ export default class Sample extends Screen {
     _setup = () => {
         const p = this;
         SpriteManager.addSprite(PUG, this.sprite);
-        this.sprite.setRow(10, 12);
+        SpriteManager.addSprite('background', this.background);
+        this.sprite.setRow(6, 12, 7);
+        this.background.setRow(1,1);
         this.video.addEventListener('ended', () => p.intro_over = true);
+        this.tiles.setRow(4, 3);
     }
 
 
@@ -62,24 +71,40 @@ export default class Sample extends Screen {
     }
 
     render = () => {
-        if(this.tick % 10 !== 0) {
-            this._tick();
-            return;
-        };
-        this.max_ticks = 10000;
-        this.ctx.fillStyle = "#000000";
+        // if(this.tick % 10 !== 0) {
+        //     this._tick();
+        //     return;
+        // };
+        this.ctx.fillStyle = "#00FF00";
         this.ctx.fillRect(0,0, this.width, this.height);
-        this.ctx.drawImage(this.video, 0, 0, this.width, this.height);
+        if(this.is_jumping) {
+            if (this.pug_y > 360) this.jump_desc = true;
+            if(this.jump_desc && this.pug_y > 0) {
+                this.pug_y--;
+            } else {
+                this.pug_y++;
+            }
+        }
 
         if (this.intro_over) {
+            this.background.render(this.ctx, 0, 0);
             if (this.is_jumping && this.tick % 250 === 0 || !this.is_jumping && this.tick % 10 === 0) {
                 this.sprite.next(() => {
-                    this.is_jumping && this.sprite.setRow(10, 12);
+                    this.is_jumping && this.sprite.setRow(6, 12, 7);
                     this.is_jumping = false;
+                    this.jump_desc = false;
+                    this.pug_y = 0;
                 });
             }
-        
-            this.sprite.render(this.ctx, 300, this.height - 300, 2);
+            this.sprite.render(this.ctx, 300, this.height - 280 - this.pug_y, 2);
+            let gx = -0.40 * this.tick;
+            while (gx < this.width) {
+                this.tiles.column = 3;
+                this.tiles.render(this.ctx, gx, this.height - this.tiles.dimension.height);
+                gx += this.tiles.dimension.width;
+            }
+        } else {
+            this.ctx.drawImage(this.video, 0, 0, this.width, this.height);
         }
         this._tick();
     }

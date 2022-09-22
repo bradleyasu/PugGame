@@ -9,6 +9,9 @@ class Jukebox {
     trackPlayer = new Audio('');
     soundeffectPlayer = new Audio('');
 
+    playingTrack = '';
+    playingSE = '';
+
     constructor() {
 
     }
@@ -16,9 +19,13 @@ class Jukebox {
 
     play = (key) => {
         if (this.soundeffects.has(key)) {
+            if(this.playingSE === key) return;
             this._load_and_play(this.soundeffectPlayer, this.soundeffects.get(key));
+            this.playingSE = key;
         } else if (this.tracks.has(key)) {
+            if(this.playingTrack === key) return;
             this._load_and_play(this.trackPlayer, this.tracks.get(key));
+            this.playingTrack = key;
         } else {
             throw Error("Could not load audio.  Not a known track or sound effect, ", key);
         }
