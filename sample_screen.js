@@ -4,6 +4,7 @@ import SpriteManager from './_engine/SpriteManager.js';
 import Sprite from './_engine/Sprite.js';
 import Dimension from './_engine/Dimension.js';
 import {PUG} from './sprite_const.js';
+import ShadowText from './_engine/effects/text/SadowText.js';
 
 export default class Sample extends Screen {
 
@@ -14,6 +15,8 @@ export default class Sample extends Screen {
     intro_over = false;
     pug_y = 0; 
     groundSpeed = 0.40;
+    started = false;
+    pug_tick = 1;
     
     constructor(canvas) {
         super(canvas);
@@ -46,7 +49,12 @@ export default class Sample extends Screen {
         this.canvas.addEventListener('click', (e) => {
             if(p.intro_over) {
                 if (!p.is_jumping) {
-                    p.tick = 1; // Probably not a good idea
+                    p.pug_tick = 1; 
+                    p.sprite.setRow(3, 2);
+                    p.is_jumping = true;
+                }
+                if(!p.started) {
+                    p.started = true;
                     p.sprite.setRow(3, 2);
                     p.is_jumping = true;
                 }
@@ -70,6 +78,8 @@ export default class Sample extends Screen {
         //     this._tick();
         //     return;
         // };
+        this.pug_tick++;
+        if(this.pug_tick > 1000) this.pug_tick = 1;
         this.ctx.fillStyle = "#00FF00";
         this.ctx.fillRect(0,0, this.width, this.height);
         if(this.is_jumping) {
@@ -83,7 +93,7 @@ export default class Sample extends Screen {
 
         if (this.intro_over) {
             this.background.render(this.ctx, 0, 0);
-            if (this.is_jumping && this.tick % 140 === 0 || !this.is_jumping && this.tick % 10 === 0) {
+            if (this.is_jumping && this.pug_tick % 140 === 0 || !this.is_jumping && this.pug_tick  % 10 === 0) {
                 this.sprite.next(() => {
                     this.is_jumping && this.sprite.setRow(6, 12, 7);
                     this.is_jumping = false;
@@ -101,6 +111,24 @@ export default class Sample extends Screen {
         } else {
             this.ctx.drawImage(this.video, 0, 0, this.width, this.height);
         }
+
+        if (!this.started && this.intro_over) {
+            this.ctx.fillStyle = "#ff284d";
+            this.ctx.font = "80px GameFont";
+            const title = "pug";
+            const subTitle = "\"a day in the life\"";
+            const startText = "TAP TO START / JUMP";
+            const tsize = this.ctx.measureText(title);
+            new ShadowText(title).draw(this.ctx, this.width / 2 - tsize.width/2, this.height / 2 - 250);
+            this.ctx.font = "30px GameFont";
+            const tssize = this.ctx.measureText(subTitle);
+            new ShadowText(subTitle, 5).draw(this.ctx, this.width / 2 - tssize.width/2, this.height / 2 - 180);
+            
+            this.ctx.font = "20px GameFont";
+            const sttSize = this.ctx.measureText(startText);
+            new ShadowText(startText, 4).draw(this.ctx, this.width / 2 - sttSize.width/2, this.height / 2);
+        }
+
         this._tick();
     }
 }
