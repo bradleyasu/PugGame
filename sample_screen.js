@@ -18,9 +18,12 @@ export default class Sample extends Screen {
     started = false;
     pug_tick = 1;
     obstacles = [];
+    track = []
+    track_count = 20;
     obstacle_count = 3;
-    seed = Math.floor(Math.random() * (3 - 0) + 0);
+    seed = 1; // Math.floor(Math.random() * (3 - 0) + 0);
     score = 0;
+    game_over = false;
     
     constructor(canvas) {
         super(canvas);
@@ -99,7 +102,63 @@ export default class Sample extends Screen {
         }
     }
 
+    _track_generator =() => {
+        if(this.track.length >= this.track_count) {
+            return;
+        }
+        while(this.track.length < this.track_count) {
+            this.track.push({
+                tile: 3,
+                x: this.track.length === 0 ? 0 : this.track[this.track.length-1].x + this.tiles.dimension.width
+            });
+        }
+    }
+
+    _check_collide = (x, y) => {
+        for(let i in this.obstacles) {
+            if(this.obstacles[i].x < x - 1 && !this.is_jumping) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    _game_over = () => {
+        this.game_over = true;
+        JUKEBOX.stop();
+        JUKEBOX.play("game_over", false);
+        this.sprite.setRow(9, 7);
+    }
+
+    render_game_over = () => {
+        this.ctx.fillStyle = "#000000";
+        this.ctx.fillRect(0,0, this.width, this.height);
+        this.ctx.fillStyle = "#FFFFFF";
+        this.ctx.font = "80px GameFont";
+        const title = "GAME OVER";
+        const tsize = this.ctx.measureText(title);
+        new ShadowText(title, 5, '#ABABAB').draw(this.ctx, this.width / 2 - tsize.width/2, this.height / 2 - 250);
+
+
+        this.ctx.font = "20px GameFont";
+        const score = "SCORE: "+this.score;
+        const ssize = this.ctx.measureText(title);
+        new ShadowText(score, 1, '#ABABAB').draw(this.ctx, this.width / 2 - ssize.width/2, this.height / 2);
+
+        if((this.tick % 10 === 0 && this.sprite.column > 1 )|| this.tick % 1000 === 0) {
+            this.sprite.next();
+        }
+        this.sprite.render(this.ctx, this.width / 2 - this.sprite.dimension.width, this.height - this.sprite.dimension.height * 4, 2);
+        this._tick();
+    }
+
     render = () => {
+        this.ctx.clearRect(0,0, this.width, this.height);
+        if(this.game_over) {
+            this.render_game_over();
+            return;
+        };
+        this._track_generator();
         if(this.started && this.tick % 500 !== 0) {
             this._obstacle_generator();
         };
@@ -127,11 +186,18 @@ export default class Sample extends Screen {
                 });
             }
             this.sprite.render(this.ctx, 300, this.height - 280 - this.pug_y, 2);
-            let gx =(-1 * this.groundSpeed) * this.tick;
-            while (gx < this.width) {
-                this.tiles.column = 3;
-                this.tiles.render(this.ctx, gx, this.height - this.tiles.dimension.height);
-                gx += this.tiles.dimension.width;
+            let collision = this._check_collide(300 + this.sprite.dimension.width, this.height - 280 - this.pug_y);
+            if (collision) {
+                this._game_over();
+            }
+            for(let i in this.track) {
+                const t = this.track[i];
+                if(t) {
+                    this.tiles.column = t.tile;
+                    this.tiles.render(this.ctx, t.x, this.height - this.tiles.dimension.height);
+                    t.x = t.x - (1 * this.groundSpeed);
+                    this.track = this.track.filter(x => x.x > 0 - (this.tiles.dimension.width * 2));
+                }
             }
         } else {
             this.ctx.drawImage(this.video, 0, 0, this.width, this.height);

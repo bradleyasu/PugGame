@@ -13,6 +13,7 @@ function Game(canvasId) {
     JUKEBOX.load('bgsound_1', './audio/bgsound_1.mp3');
     JUKEBOX.load('bgsound_2', './audio/bgsound_2.mp3');
     JUKEBOX.load('bgsound_3', './audio/bgsound_3.mp3');
+    JUKEBOX.load('game_over', './audio/game_over.mp3');
 
 
     ScreenManager.register('test', new Sample(canvas));
